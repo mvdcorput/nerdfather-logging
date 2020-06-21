@@ -1,55 +1,71 @@
-// import * as $ from 'jquery';
+import * as $ from 'jquery';
 
-// let supportedSearchEngines: Array<SupportedSearchEngine> = [];
+const SeqLogUrl = 'http://localhost:5341/api/events/raw';
+//const SeqLogUrl = 'http://localhost:5341/api/events/raw?clef';
+const SeqLogApiKey = 'TOUjR9vyDtsqrwOFc8Wo';
 
-// // Get supported search engines
-// getSupportedSearchEngines();
-chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
-  console.log('onUpdated', changeInfo);
+// init 
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   if (changeInfo.status == 'complete' && tab.active) {
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       const tab = tabs[0];
 
-      // If current tab holds an url
-      if (tab.url !== undefined && tab.url !== null && tab.url !== '')
-      {
-        console.log('Nerdfather knows!!');
-        
-        setTimeout(() => {
-          console.log(chrome.runtime.lastError.message);
-        }, 3000);
-      }
+      chrome.tabs.sendMessage(tabId, { method: 'say', data: 'yo' }, null);
     });
   }
 });
 
-// chrome.runtime.onMessage.addListener(function(message, callback) {
-//   console.log("Nerfather knows!");
-//   alert("Nerfather knows!");
-// });
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+  if (msg) {
+    if (msg.method == 'say') {
+      console.log(msg.data);
+    } else if (msg.method == 'log') {
+      console.log('error received -> ', msg.data.error);
 
+      // const seqError = {
+      //   "@t": new Date(),
+      //   "@m": msg.data.error.message,
+      //   "@i": `${uuidv4()}`,
+      //   "User": "nerdfather"
+      // };
 
-// chrome.runtime.onMessage.addListener(function (obj, sender, sendResponse) {
-//   if (obj) {
-//       if (obj.method == 'searchMarkerRefresh') {
-//         getSupportedSearchEngines();
-//       } 
-//   }
-//   return true; // remove this line to make the call sync!
-// });
+      const seqqqqError = {
+        "t": new Date(),
+        "@l": "Information",
+        "@mt": "Yo, {@User}, {N:x8} at {Now}",
+        "@i": `${uuidv4()}`,
+        "@r": {
+          "N": [
+            {
+              "Format": "x8",
+              "Rendering": "0000007b"
+            }
+          ]
+        }
+      };
 
+      console.log(JSON.stringify(seqqqqError));
+      (async () => {
+        const rawResponse = await fetch(SeqLogUrl, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-Seq-ApiKey': SeqLogApiKey
+          },
+          body: JSON.stringify(seqqqqError)
+        });
+        const content = await rawResponse.json();
+      })();
+    }
+  }
 
-// function getSupportedSearchEngines() {
-//   $.ajax({
-//       url: "https://nf-logging-azure-functions.azurewebsites.net/api/GetSupportedSearchEngines",
-//       type: "POST",
-//       processData: false,
-//       contentType: "application/json",
-//       success: (data, type, obj) => {
-//         supportedSearchEngines = JSON.parse(data);
-//       },
-//       error: (data) => {
-//           console.error(data);
-//       }
-//   });
-// }
+  return true; // remove this line to make the call sync!
+});
+
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}

@@ -3,7 +3,6 @@ const path = require('path');
 
 module.exports = {
     entry: {
-        popup: path.join(__dirname, '../src/popup.ts'),
         options: path.join(__dirname, '../src/options.ts'),
         background: path.join(__dirname, '../src/background.ts'),
         content: path.join(__dirname, '../src/content.ts')
@@ -32,6 +31,6 @@ module.exports = {
     },
     plugins: [
         // exclude locale files in moment
-        new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+        new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
     ]
 };

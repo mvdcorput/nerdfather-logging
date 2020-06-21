@@ -11,8 +11,8 @@
   },
 
   "browser_action": {
-    "default_icon": "star-solid.png",
-    "default_popup": "popup.html"
+    "default_icon": "assets/nf.png",
+    "default_popup": "popup/popup.html"
   },
 
   "content_scripts": [

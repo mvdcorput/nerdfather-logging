@@ -8,5 +8,8 @@
         "outDir": "dist/js",
         "noEmitOnError": true,
         "typeRoots": [ "node_modules/@types" ]
-    }
+    },
+    "exclude": [
+        "popup/**"
+    ]
 }

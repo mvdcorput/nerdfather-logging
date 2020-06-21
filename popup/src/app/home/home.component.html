@@ -1,0 +1,29 @@
+<app-site-header></app-site-header>
+
+<div class="content" role="main">
+
+<p>
+  <b>Current website</b>
+</p>
+<div *ngIf="!storage.isOnHitList(currentUrl)">
+  <img src="assets/target-grey.png" class="icon-target"/> 
+  <span class="hitlist-status">This url is not on the hitlist (<a href="javascript:;" (click)="addToHitlist()">add to hitlist</a>)</span>
+</div>
+<div *ngIf="storage.isOnHitList(currentUrl)" class="target-container">
+  <img src="assets/target-green.png" class="icon-target"/> 
+  <span>This url is targetted for logging.</span>
+</div>
+
+<div class="content">
+  <app-hitlist-add-edit 
+    *ngIf="!!(currentTarget$ | async)"
+    currentTarget=(currentTarget$)
+    onRemoveFromHitlist="onRemoveFromHitlist"
+  >
+
+  </app-hitlist-add-edit>  
+</div>
+
+</div>
+
+

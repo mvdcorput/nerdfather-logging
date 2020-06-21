@@ -1,0 +1,20 @@
+:host {
+  box-sizing: border-box;
+}
+
+.content {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  margin: 10px;
+  padding: 0;
+  max-width: 960px;
+}
+
+.icon-target {
+  width:20px;
+}
+
+.hitlist-status {
+    margin-left: 10px;
+  position: relative;
+  top: -5px;
+}

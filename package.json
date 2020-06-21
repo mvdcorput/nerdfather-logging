@@ -15,6 +15,7 @@
   "devDependencies": {
     "@types/chrome": "~0.0.72",
     "@types/jquery": "~3.3.1",
+    "copy-webpack-plugin": "^6.0.2",
     "ts-loader": "~5.0.0",
     "typescript": "~3.0.3",
     "webpack": "~4.17.2",
