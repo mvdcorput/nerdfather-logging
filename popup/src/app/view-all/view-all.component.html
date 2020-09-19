@@ -1,0 +1,19 @@
+<div class="view-box">
+  <p>
+    <b>All websites targetted for logging</b>
+  </p>
+  <ul>
+    <li *ngFor="let target of hitlist$ | async" 
+        title="{{target.url}}" 
+        [class.selected]="selectedTarget?.url === target.url ? true : null" 
+        (click)="toggleSelected(target)">{{target.url}}</li>
+  </ul>
+  <p class="button-bar">
+    <span class="nav">
+      <button mat-button color="secundary" (click)="nav()"><mat-icon matPrefix>keyboard_arrow_left</mat-icon> {{navButtonText}}</button>
+    </span>
+    <span class="actions" *ngIf="selectedTarget">
+      <button mat-button color="primary" (click)="edit(selectedTarget)"><mat-icon matPrefix>edit</mat-icon> Edit</button>
+    </span>
+  </p>
+</div>

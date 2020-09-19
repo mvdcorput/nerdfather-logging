@@ -4,4 +4,5 @@ export interface ITarget
     environment: string;
     application: string;
     enabled: boolean;
+    isNew?: boolean;
 }

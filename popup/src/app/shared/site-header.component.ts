@@ -1,18 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { HitlistService } from './services/hitlist.service';
+import { AppService } from './services/app.service';
+import { Router } from '@angular/router';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-site-header',
   templateUrl: './site-header.component.html',
   styleUrls: ['./site-header.component.scss']
 })
-export class SiteHeaderComponent {
-  isExpanded = false;
-
-  collapse() {
-    this.isExpanded = false;
+export class SiteHeaderComponent implements OnInit {
+  constructor(public appService: AppService, public hitlistService: HitlistService, private router: Router) {
   }
 
-  toggle() {
-    this.isExpanded = !this.isExpanded;
+  ngOnInit() {
+  }
+
+  addToHitlist = () => {
+    this.hitlistService.hitEmUp();
+    this.router.navigate(['/upsert-to-hitlist']);
   }
 }

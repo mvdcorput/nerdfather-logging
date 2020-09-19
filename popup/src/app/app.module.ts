@@ -7,18 +7,22 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SiteHeaderComponent } from './shared/site-header.component';
 import { HomeComponent } from './home/home.component';
-import { HomeService } from './home/home.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from './shared/shared.module';
-import { StorageService } from './shared/services/storage.service';
 import { HitlistAddEditComponent } from './hitlist-add-edit/hitlist-add-edit.component';
+import { CurrentComponent } from './current/current.component';
+import { ViewAllComponent } from './view-all/view-all.component';
+import { AppService } from './shared/services/app.service';
+import { HitlistService } from './shared/services/hitlist.service';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     SiteHeaderComponent,
-    HitlistAddEditComponent
+    HitlistAddEditComponent,
+    CurrentComponent,
+    ViewAllComponent
   ],
   imports: [
     BrowserModule,
@@ -26,9 +30,9 @@ import { HitlistAddEditComponent } from './hitlist-add-edit/hitlist-add-edit.com
     AngularSvgIconModule.forRoot(),
     AppRoutingModule,
     BrowserAnimationsModule,
-    SharedModule
+    SharedModule,
   ],
-  providers: [HomeService, StorageService],
+  providers: [AppService, HitlistService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

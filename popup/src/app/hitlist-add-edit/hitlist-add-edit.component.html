@@ -1,34 +1,50 @@
-<p>
-  <mat-form-field appearance="standard" class="full-width">
-    <mat-label>Base url to target</mat-label>
-    <input matInput placeholder="Enter target url">
-    <mat-icon matSuffix>language</mat-icon>
-    <mat-hint>Matches begin of urls</mat-hint>
-  </mat-form-field>
-</p>
-<p>
-  <mat-form-field appearance="standard" class="full-width">
-    <mat-label>Application</mat-label>
-    <input matInput placeholder="Enter application name">
-    <mat-hint>Application related to url</mat-hint>
-  </mat-form-field>
-</p>
-<p>
-  <mat-form-field appearance="standard" class="full-width">
-    <mat-label>Environment</mat-label>
-    <input matInput placeholder="Enter environment name">
-    <mat-hint>Environment for application</mat-hint>
-  </mat-form-field>
-</p>
-<p>
-  <mat-radio-group aria-label="Where to output log">
-    <mat-radio-button value="1">Local log file</mat-radio-button>
-    <mat-radio-button value="2" style="margin-left:15px;">Seq log</mat-radio-button>
-  </mat-radio-group>
-</p>
+<div class="view-box" *ngIf="(target$ | async) as target">
+  <p>
+    <mat-form-field appearance="standard" class="full-width">
+      <mat-label>Base url to target</mat-label>
+      <input #url matInput type="text" [(ngModel)]="target.url" placeholder="Enter target url">
+      <mat-icon matSuffix>language</mat-icon>
+      <mat-hint>Matches begin of urls</mat-hint>
+    </mat-form-field>
+  </p>
+  <p>
+    <mat-form-field appearance="standard" class="full-width">
+      <mat-label>Application</mat-label>
+      <input #app matInput type="text" [(ngModel)]="target.application" placeholder="Enter application name">
+      <mat-hint>Application related to url</mat-hint>
+    </mat-form-field>
+  </p>
+  <p>
+    <mat-form-field appearance="standard" class="full-width">
+      <mat-label>Environment</mat-label>
+      <input #env matInput type="text" [(ngModel)]="target.environment" placeholder="Enter environment name">
+      <mat-hint>Environment for application</mat-hint>
+    </mat-form-field>
+  </p>
+  <p>
+    <span class="output-target">
+      <mat-radio-group aria-label="Where to output log" name="radioOutputTarget" ([ngModel])="outputTarget" (change)="onOutputTargetChange($event)">
+        <mat-radio-button value="1" class="primary">Local log file</mat-radio-button>
+        <mat-radio-button value="2" class="primary" style="margin-left:15px;">Seq log</mat-radio-button>
+      </mat-radio-group>
+      <span class="seq-log" *ngIf="outputTarget === '2'">
+        <mat-form-field appearance="standard" class="full-width">
+          <mat-label>Seq log url</mat-label>
+          <input #seqlogurl matInput placeholder="Seq log url">
+          <mat-icon matSuffix>language</mat-icon>
+          <mat-hint>Url of Seq log instance</mat-hint>
+        </mat-form-field>
+      </span>
+    </span>
+  </p>
 
-
-<button mat-button color="primary" (click)="upsertToHitlist()">Add to hitlist</button> 
-<button mat-button color="secundary" (click)="removeFromHitlist()">Remove from hitlist</button>
-
-
+  <p class="button-bar">
+    <span class="nav">
+      <button mat-button color="secundary" (click)="nav()"><mat-icon matPrefix>keyboard_arrow_left</mat-icon>{{navButtonText}}</button>
+    </span>
+    <span class="actions">
+      <button mat-button color="primary" (click)="upsertToHitlist()">{{upsertButtonText}}</button> 
+      <button mat-button color="secundary" *ngIf="!target.isNew" (click)="removeFromHitlist()">Remove</button>
+    </span>
+  </p>
+</div>

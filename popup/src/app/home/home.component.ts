@@ -1,60 +1,51 @@
 import * as $ from 'jquery';
-import { map } from 'rxjs/operators';
-import { Component } from '@angular/core';
-import { HomeService } from './home.service';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { StorageService } from '../shared/services/storage.service';
-import { ITarget } from '../shared/models/ITarget';
+import { Component, NgZone, OnInit } from '@angular/core';
+import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
+import { Router } from '@angular/router';
+import { HitlistService } from '../shared/services/hitlist.service';
+import { first, map, tap, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-site-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent {
-  _errors$: BehaviorSubject<Array<IError>> = new BehaviorSubject<Array<IError>>([]);
-  errors$: Observable<Array<IError>> = this._errors$.asObservable();
+export class HomeComponent implements OnInit {
+  errors$$: BehaviorSubject<Array<IError>> = new BehaviorSubject<Array<IError>>([]);
+  errors$: Observable<Array<IError>> = this.errors$$.asObservable();
 
-  _currentTarget$: BehaviorSubject<ITarget> = new BehaviorSubject<ITarget>(null);
-  currentTarget$: Observable<ITarget> = this._currentTarget$.asObservable();
+  // private doYo = (method, data, callback) => {
+  //   chrome.runtime.sendMessage({ method: method, data: data }, function (response) {
+  //       if(typeof callback === "function") callback(response);
+  //   });
+  // }
 
-  currentUrl: string = null;
+  // private doYoTab = (tabId, method, data, callback) => {
+  //   chrome.tabs.sendMessage(tabId, {method: method, data: data}, function(response){
+  //       if(typeof callback === "function") callback(response);
+  //   });
+  // }
 
-  private doYo = (method, data, callback) => {
-    chrome.runtime.sendMessage({ method: method, data: data }, function (response) {
-        if(typeof callback === "function") callback(response);
-    });
-  }
+  constructor(public hitlistService: HitlistService, private router: Router) {
+    const self = this;
 
-  private doYoTab = (tabId, method, data, callback) => {
-    chrome.tabs.sendMessage(tabId, {method: method, data: data}, function(response){
-        if(typeof callback === "function") callback(response);
-    });
-  }
-
-  constructor(private service: HomeService, public storage: StorageService)
-  {
-    this._errors$.next([{
+    this.errors$$.next([{
       message: 'Test',
       time: new Date()
     }]);
+  }
 
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      this.currentUrl = tabs[0].url;
+  ngOnInit() {
+    this.hitlistService.currentTarget$.pipe(
+      filter(t => t !== undefined && t !== null)
+    )
+    .subscribe(e => {
+      this.router.navigate(['/current']);
     });
   }
 
-  addToHitlist = () => {
-    this._currentTarget$.next({
-      url: this.currentUrl,
-      environment: 'string',
-      application: '',
-      enabled: true
-     });
-  }
-
-  onRemoveFromHitlist(target: ITarget) {
-    this._currentTarget$.next(null);
+  viewHitlist = () => {
+    this.router.navigate(['/view-all']);
   }
 }
 

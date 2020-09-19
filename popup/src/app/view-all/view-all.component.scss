@@ -31,3 +31,28 @@
     border: 1px solid #ccc;
   }
 }
+
+ul {
+  padding: 0;
+  list-style-position: none;
+  width: 100%;
+
+  li {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis; 
+    margin-bottom: 5px;
+    line-height: 2em;
+    padding: 0 5px;
+    
+    &.selected {
+      background-color: rgb(201, 224, 181);
+      cursor: pointer;
+    }
+  }
+
+  li:not(.selected):hover {
+    background-color: rgb(201, 224, 181, 0.5);
+    cursor: pointer;
+  }
+}

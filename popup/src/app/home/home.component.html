@@ -1,29 +1,12 @@
-<app-site-header></app-site-header>
-
-<div class="content" role="main">
-
-<p>
-  <b>Current website</b>
-</p>
-<div *ngIf="!storage.isOnHitList(currentUrl)">
-  <img src="assets/target-grey.png" class="icon-target"/> 
-  <span class="hitlist-status">This url is not on the hitlist (<a href="javascript:;" (click)="addToHitlist()">add to hitlist</a>)</span>
+<div class="view-box">
+  <p>
+    <b>Situation</b>
+  </p>
+  <div class="button-bar">
+    <span class="nav">
+      <button mat-button color="primary" (click)="viewHitlist()"><mat-icon matPrefix>list</mat-icon>View all</button>
+    </span>
+    <span class="actions">
+    </span>
+  </div>
 </div>
-<div *ngIf="storage.isOnHitList(currentUrl)" class="target-container">
-  <img src="assets/target-green.png" class="icon-target"/> 
-  <span>This url is targetted for logging.</span>
-</div>
-
-<div class="content">
-  <app-hitlist-add-edit 
-    *ngIf="!!(currentTarget$ | async)"
-    currentTarget=(currentTarget$)
-    onRemoveFromHitlist="onRemoveFromHitlist"
-  >
-
-  </app-hitlist-add-edit>  
-</div>
-
-</div>
-
-

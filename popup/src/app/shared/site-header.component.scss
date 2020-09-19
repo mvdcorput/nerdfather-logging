@@ -1,5 +1,11 @@
+a.disabled {
+  pointer-events: none;
+  cursor: default;
+  color: #aaa;
+}
+
 header {
-  background-color: rgb(201,224,181);
+  background-color: rgb(201, 224, 181);
   font-family: 'Bowwowhouse';
   font-size: 36px;
   padding: 10px;
@@ -8,3 +14,19 @@ header {
     line-height: 1em;
   }
 }
+
+.hitlist-status {
+  margin-left: 10px;
+  position: relative;
+  top: -5px;
+}
+
+.icon-target {
+  width:20px;
+}
+
+.sub-header {
+  background-color: rgb(201, 224, 181, 0.5);
+  padding: 10px 10px 5px 10px;
+}
+

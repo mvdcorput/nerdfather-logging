@@ -3,7 +3,19 @@
     class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"
   >
     <div class="nav-content">
-      <span>Nerdfather's logging</span>
+      <span>Javascript snitch</span>
     </div>
   </nav>
 </header>
+<div class="sub-header">
+  <div *ngIf="(hitlistService.currentTarget$ | async) else no_target">
+    <img src="assets/target-green.png" class="icon-target" />
+    <span class="hitlist-status">This url is targetted for logging</span>
+  </div>
+  <ng-template #no_target>
+    <img src="assets/target-grey.png" class="icon-target" />
+    <span class="hitlist-status">This url is not on the hitlist
+      (<a href="javascript:;" [class.disabled]="!(appService.currentUrl$ | async)" (click)="addToHitlist()">add to hitlist</a>)
+    </span>
+  </ng-template>
+</div>
