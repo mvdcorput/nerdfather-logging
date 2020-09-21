@@ -21,25 +21,27 @@ export class MessageCenterService {
 
         chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             if (msg) {
-                this.ngZone.run(() => {
-                    switch (msg.method)
-                    {
-                        case 'say':
-                            console.log('say --> ', msg.data);
-                            break;
-                        case 'log':
-                            this.messages$.pipe(
-                                map(msgs => {
-                                    msgs.push(msg);
 
-                                    return msgs;
-                                })
-                            ).subscribe(msgs => {
+                switch (msg.method) {
+                    case 'say':
+                        console.log('say --> ', msg.data);
+                        break;
+                    case 'log':
+                        this.messages$.pipe(
+                            map(msgs => {
+                                if (msgs) {
+                                    msgs.push(msg);
+                                }
+
+                                return msgs || [];
+                            })
+                        ).subscribe(msgs => {
+                            this.ngZone.run(() => {
                                 this.messages$$.next(msgs);
-                            }).unsubscribe();
-                            break;
-                    }
-                });
+                            });
+                        }).unsubscribe();
+                        break;
+                }
             }
 
             sendResponse({ response: 'ok' });
