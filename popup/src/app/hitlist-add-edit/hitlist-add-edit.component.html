@@ -43,7 +43,8 @@
       <button mat-button color="secundary" (click)="nav()"><mat-icon matPrefix>keyboard_arrow_left</mat-icon>{{navButtonText}}</button>
     </span>
     <span class="actions">
-      <button mat-button color="primary" (click)="upsertToHitlist()">{{upsertButtonText}}</button> 
+      <button mat-button color="primary" *ngIf="target.isNew" (click)="upsertToHitlist()">{{addButtonText}}</button> 
+      <button mat-button color="primary" *ngIf="!target.isNew" (click)="upsertToHitlist()">{{updateButtonText}}</button> 
       <button mat-button color="secundary" *ngIf="!target.isNew" (click)="removeFromHitlist()">Remove</button>
     </span>
   </p>

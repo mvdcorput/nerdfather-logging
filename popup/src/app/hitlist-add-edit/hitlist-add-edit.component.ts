@@ -16,7 +16,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 export class HitlistAddEditComponent implements OnInit {
   outputTarget: string;
   navButtonText: string;
-  upsertButtonText: string;
+  addButtonText: string;
+  updateButtonText: string;
 
   target$ = new Observable<ITarget>();
 
@@ -28,7 +29,8 @@ export class HitlistAddEditComponent implements OnInit {
     private route: ActivatedRoute) {
 
     this.navButtonText = 'Back';
-    this.upsertButtonText = 'Add to hitlist';
+    this.addButtonText = 'Add';
+    this.updateButtonText = 'Update';
   }
 
   ngOnInit() {
@@ -46,8 +48,6 @@ export class HitlistAddEditComponent implements OnInit {
         const target = currentTarget ?
           currentTarget :
           hitlist.filter(t => this.appService.hashCode(t.url) === parseInt(queryParams['id'], 0))[0];
-
-        console.log('ddd', (target || this.newTarget(url, domain)));
 
         return (target || this.newTarget(url, domain)) as ITarget;
       })
