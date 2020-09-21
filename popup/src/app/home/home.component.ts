@@ -61,8 +61,8 @@ export class HomeComponent implements OnInit {
       map(msgs => {
         return {
           userMessages: 0,
-          errors: msgs.filter && msgs.filter(m => m.method === 'log' && m.data && m.data.error).length,
-          warnings: msgs.filter && msgs.filter(m => m.method === 'log' && m.data && m.data.warning).length,
+          errors: msgs.filter && msgs.filter(m => m.method === 'log' && m.data && m.data.error).length || 0,
+          warnings: msgs.filter && msgs.filter(m => m.method === 'log' && m.data && m.data.warning).length || 0,
           info: 0
         };
       })

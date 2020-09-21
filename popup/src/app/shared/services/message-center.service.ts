@@ -20,7 +20,6 @@ export class MessageCenterService {
         });
 
         chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-            console.log('received -> ', msg);
             if (msg) {
                 this.ngZone.run(() => {
                     switch (msg.method)
@@ -29,18 +28,15 @@ export class MessageCenterService {
                             console.log('say --> ', msg.data);
                             break;
                         case 'log':
-                            console.log('log --> ', msg);
                             this.messages$.pipe(
                                 map(msgs => {
-                                    if (msgs && msgs.push)
-                                    {
-                                        msgs.push(msg);
-                                    }
+                                    msgs.push(msg);
+
                                     return msgs;
                                 })
                             ).subscribe(msgs => {
-                                this.messages$$.next(msg);
-                            });
+                                this.messages$$.next(msgs);
+                            }).unsubscribe();
                             break;
                     }
                 });
