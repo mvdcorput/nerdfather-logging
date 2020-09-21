@@ -3,7 +3,7 @@ import { ITarget } from '../shared/models/ITarget';
 import { MatRadioChange } from '@angular/material/radio';
 import { HitlistService } from '../shared/services/hitlist.service';
 import { Location } from '@angular/common';
-import { map, tap, first } from 'rxjs/operators';
+import { map, tap, first, filter } from 'rxjs/operators';
 import { AppService } from '../shared/services/app.service';
 import { Observable, combineLatest } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -41,10 +41,13 @@ export class HitlistAddEditComponent implements OnInit {
         this.route.queryParams
       ]
     ).pipe(
+      filter(([currentTarget, url, domain, hitlist, queryParams]) => hitlist !== null),
       map(([currentTarget, url, domain, hitlist, queryParams]) => {
         const target = currentTarget ?
           currentTarget :
           hitlist.filter(t => this.appService.hashCode(t.url) === parseInt(queryParams['id'], 0))[0];
+
+        console.log('ddd', (target || this.newTarget(url, domain)));
 
         return (target || this.newTarget(url, domain)) as ITarget;
       })

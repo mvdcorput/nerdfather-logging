@@ -97,7 +97,7 @@ export class HitlistService {
         const hitlist = JSON.parse(await localStorage.getItem('hitList'));
 
         if (hitlist === undefined || hitlist === null) {
-            this.hitlist$$.next(null);
+            this.hitlist$$.next([]);
             return;
         }
 
