@@ -25,7 +25,7 @@ export class ViewAllComponent implements OnInit {
   ngOnInit() {
     this.hitlist$ = this.hitlistService.hitlist$.pipe(
       map(hitlist => {
-        return hitlist.sort((a, b) => a.url > b.url ? 1 : -1);
+        return hitlist ? hitlist.sort((a, b) => a.url > b.url ? 1 : -1) : [];
       })
     );
   }

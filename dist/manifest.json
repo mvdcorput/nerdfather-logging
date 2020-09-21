@@ -1,9 +1,14 @@
 {
   "manifest_version": 2,
 
-  "name": "Javascript snitch",
+  "name": "Javascript informer",
   "description": "Nerdfathers JS console output to store",
   "version": "0.32",
+
+  "icons": {
+    "16":"assets/nf.png",
+    "32":"assets/nf48.png" 
+  },
 
   "options_ui": {
     "page": "options.html",
@@ -17,7 +22,7 @@
 
   "content_scripts": [
       {
-          "matches": ["<all_urls>"],
+          "matches": ["*://*/*"],
           "js": ["js/vendor.js", "js/content.js"]
       }
   ],

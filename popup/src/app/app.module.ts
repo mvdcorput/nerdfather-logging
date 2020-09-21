@@ -14,6 +14,7 @@ import { CurrentComponent } from './current/current.component';
 import { ViewAllComponent } from './view-all/view-all.component';
 import { AppService } from './shared/services/app.service';
 import { HitlistService } from './shared/services/hitlist.service';
+import { MessageCenterService } from './shared/services/message-center.service';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,7 @@ import { HitlistService } from './shared/services/hitlist.service';
     BrowserAnimationsModule,
     SharedModule,
   ],
-  providers: [AppService, HitlistService],
+  providers: [AppService, HitlistService, MessageCenterService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

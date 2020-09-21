@@ -8,3 +8,21 @@
   padding: 0;
   max-width: 960px;
 }
+
+.msg-row {
+  .type-img {
+    height: 16px;
+    width: 16px;
+  }
+
+  .label-link {
+    margin-left: 5px; 
+    position: relative;
+    top: -2px;
+  }
+
+  .label-link:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+}

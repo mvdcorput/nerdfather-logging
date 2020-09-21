@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { AppService } from './shared/services/app.service';
+import { MessageCenterService } from './shared/services/message-center.service';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +10,7 @@ import { AppService } from './shared/services/app.service';
 export class AppComponent {
   title = 'nerdfather-web';
 
-  constructor(private appService: AppService)
+  constructor(private appService: AppService, private messageCenterService: MessageCenterService)
   {
   }
 }
