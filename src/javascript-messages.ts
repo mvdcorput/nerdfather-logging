@@ -1,3 +1,5 @@
+import { IMessage } from "./background/messages.service";
+
 chrome.runtime.sendMessage({
     method: 'getMessages',
     data: null
@@ -7,7 +9,7 @@ chrome.runtime.sendMessage({
         let docContent = '';
 
         // Sort by date desc
-        const messages = response.messages.sort(function(a, b){
+        const messages: IMessage[] = response.messages.sort(function(a, b){
             return b.date - a.date;
         });
 
