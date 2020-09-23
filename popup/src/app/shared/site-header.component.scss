@@ -10,8 +10,15 @@ header {
   font-size: 36px;
   padding: 10px;
 
-  .nav-content span {
-    line-height: 1em;
+  .nav-content {
+    span {
+      line-height: 1em;
+    }
+
+    img.informer {
+      margin-left: 15px;
+      height: 26px;
+    }
   }
 }
 
