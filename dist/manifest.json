@@ -23,7 +23,9 @@
   "content_scripts": [
       {
           "matches": ["*://*/*"],
-          "js": ["js/vendor.js", "js/content.js"]
+          "js": ["js/vendor.js", "js/content.js"],
+          "run_at": "document_start"
+          
       }
   ],
 
