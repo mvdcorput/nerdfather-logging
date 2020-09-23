@@ -56,12 +56,6 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.hitlistService.currentTarget$.pipe(
-      filter(t => t !== undefined && t !== null)
-    ).subscribe(e => {
-      this.router.navigate(['/current']);
-    });
-
     this.messageCenterService.messages$.pipe(
       filter(t => t !== undefined && t !== null),
       map(msgs => {
@@ -77,7 +71,6 @@ export class HomeComponent implements OnInit {
     });
   }
 
-
   download = () => {
     this.messageCenterService.messages$.subscribe(msgs => this.fileService.downloadMessages(msgs));
   }
@@ -86,6 +79,9 @@ export class HomeComponent implements OnInit {
     this.messageCenterService.messages$.subscribe(msgs => this.fileService.messagesToTab(msgs));
   }
 
+  upsertToHitlist = () => {
+    this.router.navigate(['/upsert-to-hitlist']);
+  }
 
   viewHitlist = () => {
     this.router.navigate(['/view-all']);

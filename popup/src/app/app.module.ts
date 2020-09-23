@@ -10,7 +10,6 @@ import { HomeComponent } from './home/home.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SharedModule } from './shared/shared.module';
 import { HitlistAddEditComponent } from './hitlist-add-edit/hitlist-add-edit.component';
-import { CurrentComponent } from './current/current.component';
 import { ViewAllComponent } from './view-all/view-all.component';
 import { AppService } from './shared/services/app.service';
 import { HitlistService } from './shared/services/hitlist.service';
@@ -23,7 +22,6 @@ import { FileService } from './shared/services/file.service';
     HomeComponent,
     SiteHeaderComponent,
     HitlistAddEditComponent,
-    CurrentComponent,
     ViewAllComponent
   ],
   imports: [

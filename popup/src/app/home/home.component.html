@@ -22,6 +22,9 @@
   </div>
   <div class="button-bar">
     <span class="nav">
+      <button mat-button color="primary" (click)="upsertToHitlist()" *ngIf="(this.hitlistService.currentTarget$ | async)">
+        <mat-icon matPrefix>edit</mat-icon> Edit
+      </button> 
       <button mat-button color="primary" (click)="viewHitlist()" *ngIf="(hitlistService.hitlist$ | async)?.length>0"><mat-icon matPrefix>list</mat-icon>View all</button>
     </span>
     <span class="actions">
