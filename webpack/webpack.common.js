@@ -5,7 +5,8 @@ module.exports = {
     entry: {
         options: path.join(__dirname, '../src/options.ts'),
         background: path.join(__dirname, '../src/background.ts'),
-        content: path.join(__dirname, '../src/content.ts')
+        content: path.join(__dirname, '../src/content.ts'),
+        javascriptMessages: path.join(__dirname, '../src/javascript-messages.ts')
     },
     output: {
         path: path.join(__dirname, '../dist/js'),

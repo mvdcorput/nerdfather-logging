@@ -15,6 +15,7 @@ import { ViewAllComponent } from './view-all/view-all.component';
 import { AppService } from './shared/services/app.service';
 import { HitlistService } from './shared/services/hitlist.service';
 import { MessageCenterService } from './shared/services/message-center.service';
+import { FileService } from './shared/services/file.service';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,7 @@ import { MessageCenterService } from './shared/services/message-center.service';
     BrowserAnimationsModule,
     SharedModule,
   ],
-  providers: [AppService, HitlistService, MessageCenterService],
+  providers: [AppService, FileService, HitlistService, MessageCenterService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

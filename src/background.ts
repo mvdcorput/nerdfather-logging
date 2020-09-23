@@ -27,6 +27,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
         console.log(msg.data);
         break;
       case 'initializePopup':
+      case 'getMessages':
         response = { messages: messageService.messages }; 
         break;
       case 'log':

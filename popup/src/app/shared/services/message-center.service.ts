@@ -50,16 +50,31 @@ export class MessageCenterService {
 }
 
 export interface IMessage {
+    date: Date;
     data?: IMessageData;
     method: 'say' | 'log' | 'initializePopup';
 }
 
 export interface IMessageData {
-    error?: IError;
-    warning?: IError;
+    error?: IMessageError;
+    warning?: IMessageWarning;
 }
 
 export interface IMessageError {
     is404?: boolean;
     url?: string;
+    stack?: string;
+    line?: string;
+    col?: string;
+    text?: string;
 }
+
+export interface IMessageWarning {
+    is404?: boolean;
+    url?: string;
+    stack?: string;
+    line?: string;
+    col?: string;
+    text?: string;
+}
+

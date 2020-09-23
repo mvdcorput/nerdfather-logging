@@ -34,6 +34,7 @@ function handleNewError(error) {
                 timer = null;
                 chrome.runtime.sendMessage({
                     method: 'log',
+                    date: new Date(),
                     data: { error: error, url: window.top.location.href }
                 }, function(response) {});
             }, 200);
@@ -69,6 +70,7 @@ function handleNewWarning(warning) {
                 timer = null;
                 chrome.runtime.sendMessage({
                     method: 'log',
+                    date: new Date(),
                     data: { warning: warning, url: window.top.location.href }
                 }, function(response) {});
             }, 200);
@@ -106,6 +108,7 @@ function handleNewLogMessage(logMessage) {
                 timer = null;
                 chrome.runtime.sendMessage({
                     method: 'log',
+                    date: new Date(),
                     data: { userMessage: logMessage, url: window.top.location.href }
                 }, function(response) {});
             }, 200);

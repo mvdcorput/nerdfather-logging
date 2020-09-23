@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { HitlistService } from '../shared/services/hitlist.service';
 import { filter, map, tap } from 'rxjs/operators';
 import { MessageCenterService, IMessage } from '../shared/services/message-center.service';
+import { FileService } from '../shared/services/file.service';
 
 @Component({
   selector: 'app-site-home',
@@ -30,7 +31,12 @@ export class HomeComponent implements OnInit {
   //   });
   // }
 
-  constructor(public hitlistService: HitlistService, private messageCenterService: MessageCenterService, private router: Router) {
+  constructor(
+    private fileService: FileService,
+    public hitlistService: HitlistService,
+    private messageCenterService: MessageCenterService,
+    private router: Router) {
+
     const self = this;
 
     this.errors$$.next([{
@@ -70,6 +76,16 @@ export class HomeComponent implements OnInit {
       this.messageCounts$$.next(messageCounts);
     });
   }
+
+
+  download = () => {
+    this.messageCenterService.messages$.subscribe(msgs => this.fileService.downloadMessages(msgs));
+  }
+
+  messagesToTab = () => {
+    this.messageCenterService.messages$.subscribe(msgs => this.fileService.messagesToTab(msgs));
+  }
+
 
   viewHitlist = () => {
     this.router.navigate(['/view-all']);

@@ -7,7 +7,7 @@
 
   "icons": {
     "16":"assets/nf.png",
-    "32":"assets/nf48.png" 
+    "48":"assets/nf48.png" 
   },
 
   "options_ui": {
@@ -32,7 +32,11 @@
   },
 
   "permissions": [
+    "<all_urls>",
+    "*://*/*",
+    "downloads",
     "storage",
-    "<all_urls>"
+    "activeTab",
+    "tabs"
   ]
 }
