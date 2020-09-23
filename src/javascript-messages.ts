@@ -7,12 +7,12 @@ chrome.runtime.sendMessage({
         let docContent = '';
 
         // Sort by date desc
-        response.messages = response.messages.sort(function(a, b){
+        const messages = response.messages.sort(function(a, b){
             return b.date - a.date;
         });
 
         // Create log message html
-        response.messages.forEach(m => {
+        messages.forEach(m => {
             const type = m.data.error ? 'Error' : 'Warning';
             const url = type === 'Error' ? m.data.error.url : m.data.warning.url;
             const text = type === 'Error' ?
@@ -20,7 +20,8 @@ chrome.runtime.sendMessage({
                 m.data.warning.text;
             const stack = type === 'Error' ? m.data.error.stack : m.data.warning.stack;
             const className = type.toLowerCase();
-            docContent = docContent.concat(`<b><p>${m.date} : <span class="${className}">${type}</span> (${url})</b>\n${text}\n${stack}\n</p><br/>`);
+
+            docContent = docContent.concat(`<b><p>${m.date} : <span class="${className}">${type}</span> (${url})</b><br/>${text}<br/>${stack}<br/></p><br/>`);
         });
 
         // Add to end of body
