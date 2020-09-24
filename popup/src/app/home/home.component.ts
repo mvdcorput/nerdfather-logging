@@ -63,7 +63,7 @@ export class HomeComponent implements OnInit {
           userMessages: 0,
           errors: msgs.filter && msgs.filter(m => m.method === 'log' && m.data && m.data.error).length || 0,
           warnings: msgs.filter && msgs.filter(m => m.method === 'log' && m.data && m.data.warning).length || 0,
-          info: 0
+          info: msgs.filter && msgs.filter(m => m.method === 'log' && m.data && m.data.message).length || 0,
         };
       })
     ).subscribe(messageCounts => {

@@ -35,7 +35,6 @@
 
   "permissions": [
     "<all_urls>",
-    "*://*/*",
     "downloads",
     "storage",
     "activeTab",

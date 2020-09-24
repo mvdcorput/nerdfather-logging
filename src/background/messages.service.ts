@@ -9,6 +9,10 @@ export class MessageService
         this.messages.push(msg);
     }
 
+    addMessages(messages: any) {
+        this.messages = [...this.messages, ...messages];
+    }
+
     reset(tabUrl: string) {
         this.messages = this.messages.filter(m => {
             return 
@@ -19,14 +23,18 @@ export class MessageService
 }
 
 export interface IMessage {
-    date: Date;
     data?: IMessageData;
-    method: 'say' | 'log' | 'initializePopup';
+    date: Date;
+    method: MessageMethod;
+    occurenceEndDate: Date;
+    occurenceCount: number;
 }
 
 export interface IMessageData {
     error?: IMessageError;
     warning?: IMessageWarning;
+    message?: IMessageLogging;
+    code?: string;
 }
 
 export interface IMessageError {
@@ -37,6 +45,13 @@ export interface IMessageError {
     col?: string;
     text?: string;
 }
+
+export interface IMessageLogging {
+    url?: string;
+    text?: string;
+}
+
+export type MessageMethod = 'say' | 'log' | 'initializePopup' | 'getMessages';
 
 export interface IMessageWarning {
     is404?: boolean;

@@ -1,30 +1,40 @@
 import * as $ from 'jquery';
-import { MessageService } from './background/messages.service';
+import { IMessage, IMessageError, MessageService } from './background/messages.service';
 
-const SeqLogUrl = 'http://localhost:5341/api/events/raw';
-//const SeqLogUrl = 'http://localhost:5341/api/events/raw?clef';
-const SeqLogApiKey = 'TOUjR9vyDtsqrwOFc8Wo';
+// const SeqLogUrl = 'http://localhost:5341/api/events/raw';
+// //const SeqLogUrl = 'http://localhost:5341/api/events/raw?clef';
+// const SeqLogApiKey = 'TOUjR9vyDtsqrwOFc8Wo';
 
 const messageService = new MessageService();
 
-// init 
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+// Init / connect to content script 
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) {
   if (changeInfo.status == 'complete' && tab.active) {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       messageService.reset(tab.url);
-      chrome.tabs.sendMessage(tabId, { method: 'say', data: 'Javascript informer connected' }, null);
+
+      chrome.tabs.sendMessage(tabId, { 
+        method: 'say', data: { code: 'jsic', message: 'Javascript informer connected.' } 
+      }, (response) => {
+        console.log('Content script connected', response.messages);
+        
+        if (response.messages) {
+          messageService.addMessages(response.messages);
+        }
+      });
     });
   }
 });
 
-chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+// Handle messages
+chrome.runtime.onMessage.addListener(function (msg: IMessage, sender, sendResponse) {
   if (msg) {
     let response: any = 'ok';
 
     switch (msg.method)
     {
       case 'say':
-        console.log(msg.data);
+        console.log('say', msg.data.code, msg.data.message);
         break;
       case 'initializePopup':
       case 'getMessages':

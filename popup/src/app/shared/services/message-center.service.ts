@@ -1,8 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
-import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-import { IError } from 'src/app/home/home.component';
-import { MAT_DIALOG_SCROLL_STRATEGY } from '@angular/material/dialog';
+import { BehaviorSubject } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class MessageCenterService {
@@ -56,6 +54,7 @@ export interface IMessage {
 }
 
 export interface IMessageData {
+    message?: IMessageLogging;
     error?: IMessageError;
     warning?: IMessageWarning;
 }
@@ -66,6 +65,11 @@ export interface IMessageError {
     stack?: string;
     line?: string;
     col?: string;
+    text?: string;
+}
+
+export interface IMessageLogging {
+    url?: string;
     text?: string;
 }
 

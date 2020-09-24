@@ -1,46 +1,98 @@
 import * as $ from 'jquery';
+import { IMessage, IMessageData } from './background/messages.service';
 
-var errors = [];
+const _log = console.log;
+const isIFrame = window.top != window;
+const messageLimit = 100;
+const messages: IMessage[] = [];
+
+let backgroundConnected: boolean = false;
+let timer: any;
+
 var logMessages = [];
-var warnings = [];
-var errorsLimit = 100;
-var logMessagesLimit = 100;
-var warningsLimit = 100;
-var timer;
-var isIFrame = window.top != window;
 
-chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-    if (msg.method === 'say') {
-        console.log(msg.data);
-        sendResponse(null);
+// Init / connect to background
+chrome.runtime.onMessage.addListener(function (msg: IMessage, sender, sendResponse) {
+    if (msg.method === 'say' && msg.data.code === 'jsic') {
+
+        _log(msg.data.message);
+
+        sendResponse({ messages });
+
+        backgroundConnected = true;
     }
 });
 
-//#region Message Handlers
-const __log = console.log;
-
-function handleNewError(error) {
-    var lastError = errors[errors.length - 1];
-    var isSameAsLast = lastError && lastError.text == error.text && lastError.url == error.url && lastError.line == error.line && lastError.col == error.col;
-    var isWrongUrl = !error.url || error.url.indexOf('://') === -1;
-
-    if(!isSameAsLast && !isWrongUrl) {
-        errors.push(error);
-        if(errors.length > errorsLimit) {
-            errors.shift();
+function handleMessage(messageData: IMessageData) {
+    const lastMessage = messages[messages.length - 1];
+    
+    // Determine if duplicate
+    let duplicate = false;
+    if (lastMessage)
+    {
+        if (messageData.error && lastMessage.data.error)
+        {
+            if (lastMessage.data.error.url === messageData.error.url)
+            {
+                if ((lastMessage.data.error.is404 === lastMessage.data.error.is404) ||
+                    (lastMessage.data.error.text === lastMessage.data.error.text)) {
+                    duplicate = true;
+                }
+            }
         }
+        if (messageData.warning && lastMessage.data.warning)
+        {
+            if (lastMessage.data.warning.url === messageData.warning.url)
+            {
+                if (lastMessage.data.warning.text === lastMessage.data.warning.text) {
+                    duplicate = true;
+                }
+            }
+        }
+        if (messageData.message && lastMessage.data.message)
+        {
+            if (lastMessage.data.message.url === messageData.message.url)
+            {
+                if (lastMessage.data.message.text === lastMessage.data.message.text) {
+                    duplicate = true;
+                }
+            }
+        }
+    }
+ 
+    // Store / update / send message
+    if (duplicate) {
+        lastMessage.occurenceEndDate = new Date();
+        lastMessage.occurenceCount++;
+    } else {
+        const msgDate = new Date();
+        const newMessage: IMessage = {
+            method: 'log',
+            date: msgDate,
+            occurenceCount: 1,
+            occurenceEndDate: msgDate,
+            data: messageData
+        }
+
+        messages.push(newMessage);
+        if(messages.length > messageLimit) {
+            messages.shift();
+        }
+
         if(!timer) {
             timer = window.setTimeout(function() {
                 timer = null;
-                chrome.runtime.sendMessage({
-                    method: 'log',
-                    date: new Date(),
-                    data: { error: error, url: window.top.location.href }
-                }, function(response) {});
+                if (backgroundConnected)
+                {
+                    chrome.runtime.sendMessage(messageData, function(response) {});
+                }
             }, 200);
         }
     }
 }
+
+//#region Message Handlers
+
 document.addEventListener('ErrorToExtension', function(e: any) {
     var error = e.detail;
     if(isIFrame) {
@@ -51,32 +103,10 @@ document.addEventListener('ErrorToExtension', function(e: any) {
         }, '*');
     }
     else {
-        handleNewError(error);
+        handleMessage({ error });
     }
 });
 
-function handleNewWarning(warning) {
-    var lastWarning = warnings[warnings.length - 1];
-    var isSameAsLast = lastWarning && lastWarning.text == warning.text && lastWarning.url == warning.url && lastWarning.line == warning.line && lastWarning.col == warning.col;
-    var isWrongUrl = !warning.url || warning.url.indexOf('://') === -1;
-
-    if(!isSameAsLast && !isWrongUrl) {
-        warnings.push(warning);
-        if(warnings.length > warningsLimit) {
-            warnings.shift();
-        }
-        if(!timer) {
-            timer = window.setTimeout(function() {
-                timer = null;
-                chrome.runtime.sendMessage({
-                    method: 'log',
-                    date: new Date(),
-                    data: { warning: warning, url: window.top.location.href }
-                }, function(response) {});
-            }, 200);
-        }
-    }
-}
 document.addEventListener('WarningToExtension', function(e: any) {
     var warning = e.detail;
     if(isIFrame) {
@@ -87,49 +117,27 @@ document.addEventListener('WarningToExtension', function(e: any) {
         }, '*');
     }
     else {
-        handleNewWarning(warning);
+        handleMessage({ warning });
     }
 });
 
-function handleNewLogMessage(logMessage) {
-    var lastLogMessage = logMessages[logMessages.length - 1];
-    var isSameAsLast = lastLogMessage && lastLogMessage.text == logMessage.text && lastLogMessage.url == logMessage.url && lastLogMessage.line == logMessage.line && lastLogMessage.col == logMessage.col;
-    var isWrongUrl = !logMessage.url || logMessage.url.indexOf('://') === -1;
-
-    __log('handleNewLogMessage', logMessage);
-
-    if(!isSameAsLast && !isWrongUrl) {
-        logMessages.push(logMessages);
-        if(logMessages.length > logMessagesLimit) {
-            logMessages.shift();
-        }
-        if(!timer) {
-            timer = window.setTimeout(function() {
-                timer = null;
-                chrome.runtime.sendMessage({
-                    method: 'log',
-                    date: new Date(),
-                    data: { userMessage: logMessage, url: window.top.location.href }
-                }, function(response) {});
-            }, 200);
-        }
-    }
-}
 document.addEventListener('LogToExtension', function(e: any) {
-    var logMessage = e.detail;
+    var message = e.detail;
     if(isIFrame) {
         window.top.postMessage({
             _iframeError: true,
             _fromJEN: true,
-            logMessage: logMessage
+            userMessage: message
         }, '*');
     }
     else {
-        handleNewLogMessage(logMessage);
+        handleMessage({ message });
     }
 });
 //#endregion
 
+
+// Code inside this function will be injected in web pages for javascript message retrieval
 function codeToInject() {
     const _log = console.log, _warn = console.warn, _error = console.error;
 
@@ -190,15 +198,6 @@ function codeToInject() {
         }));
     }
 
-    function handleNfLog(value: string) {
-        _log('###', value);
-        document.dispatchEvent(new CustomEvent('NfLogMessage', {
-            detail: {
-                message: value
-            }
-        }));
-    }
-
     // handle uncaught promises errors
     window.addEventListener('unhandledrejection', function(e: any) {
         if (typeof e.reason === 'undefined') {
@@ -212,10 +211,7 @@ function codeToInject() {
             arguments[0] : JSON.stringify(arguments.length == 1 ? 
                 arguments[0] : arguments);
 
-        _log('## ', args)
-        _log('## ', JSON.stringify(arguments))
-
-        handleNfLog(args);
+        handleCustomLog(args);
         return _log(...arguments);
     };
     
@@ -239,7 +235,6 @@ function codeToInject() {
 
     // handle uncaught errors
     window.addEventListener('error', function(e: ErrorEvent) {
-        console.log('eventlistner error => ', e);
         document.dispatchEvent(new CustomEvent('ErrorToExtension', {
             detail: {
                 stack: e.error ? e.error.stack : null,
