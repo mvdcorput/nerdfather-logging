@@ -1,9 +1,5 @@
 import * as $ from 'jquery';
-import { IMessage, IMessageError, MessageService } from './background/messages.service';
-
-// const SeqLogUrl = 'http://localhost:5341/api/events/raw';
-// //const SeqLogUrl = 'http://localhost:5341/api/events/raw?clef';
-// const SeqLogApiKey = 'TOUjR9vyDtsqrwOFc8Wo';
+import { IMessage, MessageService } from './background/messages.service';
 
 const messageService = new MessageService();
 

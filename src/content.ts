@@ -3,13 +3,11 @@ import { IMessage, IMessageData } from './background/messages.service';
 
 const _log = console.log;
 const isIFrame = window.top != window;
-const messageLimit = 100;
+const messageLimit = 200;
 const messages: IMessage[] = [];
 
 let backgroundConnected: boolean = false;
 let timer: any;
-
-var logMessages = [];
 
 // Init / connect to background
 chrome.runtime.onMessage.addListener(function (msg: IMessage, sender, sendResponse) {
@@ -23,6 +21,7 @@ chrome.runtime.onMessage.addListener(function (msg: IMessage, sender, sendRespon
     }
 });
 
+// Message processing
 function handleMessage(messageData: IMessageData) {
     const lastMessage = messages[messages.length - 1];
     
@@ -94,7 +93,7 @@ function handleMessage(messageData: IMessageData) {
 //#region Message Handlers
 
 document.addEventListener('ErrorToExtension', function(e: any) {
-    var error = e.detail;
+    const error = e.detail;
     if(isIFrame) {
         window.top.postMessage({
             _iframeError: true,
@@ -108,7 +107,7 @@ document.addEventListener('ErrorToExtension', function(e: any) {
 });
 
 document.addEventListener('WarningToExtension', function(e: any) {
-    var warning = e.detail;
+    const warning = e.detail;
     if(isIFrame) {
         window.top.postMessage({
             _iframeError: true,
@@ -122,7 +121,7 @@ document.addEventListener('WarningToExtension', function(e: any) {
 });
 
 document.addEventListener('LogToExtension', function(e: any) {
-    var message = e.detail;
+    const message = e.detail;
     if(isIFrame) {
         window.top.postMessage({
             _iframeError: true,
@@ -134,11 +133,13 @@ document.addEventListener('LogToExtension', function(e: any) {
         handleMessage({ message });
     }
 });
+
 //#endregion
 
+//#region Script injection
 
 // Code inside this function will be injected in web pages for javascript message retrieval
-function codeToInject() {
+function injectable() {
     const _log = console.log, _warn = console.warn, _error = console.error;
 
     function handleCustomError(message, stack = null) {
@@ -146,8 +147,8 @@ function codeToInject() {
             stack = (new Error()).stack.split("\n").splice(2, 4).join("\n");
         }
 
-        var stackLines = stack.split("\n");
-        var callSrc = (stackLines.length > 1 && (/^.*?\((.*?):(\d+):(\d+)/.exec(stackLines[1]) || /(\w+:\/\/.*?):(\d+):(\d+)/.exec(stackLines[1]))) || [null, null, null, null];
+        const stackLines = stack.split("\n");
+        const callSrc = (stackLines.length > 1 && (/^.*?\((.*?):(\d+):(\d+)/.exec(stackLines[1]) || /(\w+:\/\/.*?):(\d+):(\d+)/.exec(stackLines[1]))) || [null, null, null, null];
 
         document.dispatchEvent(new CustomEvent('ErrorToExtension', {
             detail: {
@@ -184,8 +185,8 @@ function codeToInject() {
             stack = (new Error()).stack.split("\n").splice(2, 4).join("\n");
         }
 
-        var stackLines = stack.split("\n");
-        var callSrc = (stackLines.length > 1 && (/^.*?\((.*?):(\d+):(\d+)/.exec(stackLines[1]) || /(\w+:\/\/.*?):(\d+):(\d+)/.exec(stackLines[1]))) || [null, null, null, null];
+        const stackLines = stack.split("\n");
+        const callSrc = (stackLines.length > 1 && (/^.*?\((.*?):(\d+):(\d+)/.exec(stackLines[1]) || /(\w+:\/\/.*?):(\d+):(\d+)/.exec(stackLines[1]))) || [null, null, null, null];
 
         document.dispatchEvent(new CustomEvent('LogToExtension', {
             detail: {
@@ -207,29 +208,23 @@ function codeToInject() {
     });
 
     console.log = function() {
-        const args = arguments.length == 1 && typeof arguments[0] == 'string' ? 
-            arguments[0] : JSON.stringify(arguments.length == 1 ? 
-                arguments[0] : arguments);
-
-        handleCustomLog(args);
+        const param = arguments.length === 1 && typeof arguments[0] === 'string' ? 
+                        arguments[0] : JSON.stringify(arguments.length === 1 ? arguments[0] : arguments);
+        handleCustomLog(param);
         return _log(...arguments);
     };
     
-    console.warn = function() {
-        const argsArray = [];
-        for(var i in arguments) { // because arguments.join() not working! oO
-            argsArray.push(arguments[i]);
-        }
-        handleCustomWarning(argsArray.length == 1 && typeof argsArray[0] == 'string' ? argsArray[0] : JSON.stringify(argsArray.length == 1 ? argsArray[0] : argsArray));
+    console.warn = () => {
+        const param = arguments.length === 1 && typeof arguments[0] === 'string' ? 
+                        arguments[0] : JSON.stringify(arguments.length === 1 ? arguments[0] : arguments);
+        handleCustomWarning(param);
         return _warn(...arguments);
     };
     
-    console.error = function() {
-        const argsArray = [];
-        for(var i in arguments) { // because arguments.join() not working! oO
-            argsArray.push(arguments[i]);
-        }
-        handleCustomError(argsArray.length == 1 && typeof argsArray[0] == 'string' ? argsArray[0] : JSON.stringify(argsArray.length == 1 ? argsArray[0] : argsArray));
+    console.error = () => {
+        const param = arguments.length === 1 && typeof arguments[0] === 'string' ? 
+                        arguments[0] : JSON.stringify(arguments.length === 1 ? arguments[0] : arguments);
+        handleCustomError(param);
         return _error(...arguments);
     };
 
@@ -248,8 +243,8 @@ function codeToInject() {
 
     // handle 404 errors
     window.addEventListener('error', function(e: any) {
-        var src = e.target.src || e.target.href;
-        var baseUrl = e.target.baseURI;
+        const src = e.target.src || e.target.href;
+        const baseUrl = e.target.baseURI;
         if(src && baseUrl && src != baseUrl) {
             document.dispatchEvent(new CustomEvent('ErrorToExtension', {
                 detail: {
@@ -261,8 +256,10 @@ function codeToInject() {
     }, true);
 }
 
-// Inject script so it is executed, then remove
-var script = document.createElement('script');
-script.textContent = '(' + codeToInject + '())';
+// Inject script as iife, then remove from page source again
+const script = document.createElement('script');
+script.textContent = '(' + injectable + '())';
 (document.head || document.documentElement).appendChild(script);
 script.parentNode.removeChild(script);
+
+//#endregion
