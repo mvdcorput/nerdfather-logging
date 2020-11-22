@@ -4,81 +4,88 @@ import { map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class MessageCenterService {
-    public messages$$ = new BehaviorSubject<Array<IMessage>>([]);
-    public readonly messages$ = this.messages$$.asObservable();
+  public messages$$ = new BehaviorSubject<Array<IMessage>>([]);
+  public readonly messages$ = this.messages$$.asObservable();
 
-    constructor(private ngZone: NgZone) {
-        chrome.runtime.sendMessage({ method: 'initializePopup', data: null }, (response) => {
-            console.log('initializePopup callback', response);
-            if (response) {
-                this.ngZone.run(() => {
-                    this.messages$$.next(response.messages);
-                });
-            }
+  constructor(private ngZone: NgZone) {
+    console.trace('InitializePopup call');
+    chrome.runtime.sendMessage({ method: 'initializePopup', data: null }, (response) => {
+      console.trace('InitializePopup callback');
+
+      this.ngZone.run(() => {
+        if (response) {
+          this.messages$$.next(response.messages);
+        }
+      });
+    });
+
+    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+      if (msg) {
+        this.ngZone.run(() => {
+          switch (msg.method) {
+            case 'say':
+              console.log('say --> ', msg.data);
+              break;
+            case 'log':
+              this.messages$.pipe(
+                map(msgs => {
+                  if (msgs) {
+                    msgs.push(msg);
+                  }
+
+                  return msgs || [];
+                })
+              ).subscribe(msgs => {
+
+                this.messages$$.next(msgs);
+              }).unsubscribe();
+              break;
+          }
         });
+      }
 
-        chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-            if (msg) {
-
-                switch (msg.method) {
-                    case 'say':
-                        console.log('say --> ', msg.data);
-                        break;
-                    case 'log':
-                        this.messages$.pipe(
-                            map(msgs => {
-                                if (msgs) {
-                                    msgs.push(msg);
-                                }
-
-                                return msgs || [];
-                            })
-                        ).subscribe(msgs => {
-                            this.ngZone.run(() => {
-                                this.messages$$.next(msgs);
-                            });
-                        }).unsubscribe();
-                        break;
-                }
-            }
-
-            sendResponse({ response: 'ok' });
-        });
-    }
+      sendResponse({ response: 'ok' });
+    });
+  }
 }
 
 export interface IMessage {
-    date: Date;
-    data?: IMessageData;
-    method: 'say' | 'log' | 'initializePopup';
+  data?: IMessageData;
+  date: Date;
+  method: MessageMethod;
+  occurenceEndDate: Date;
+  occurenceCount: number;
+  url: string;
 }
 
 export interface IMessageData {
-    message?: IMessageLogging;
-    error?: IMessageError;
-    warning?: IMessageWarning;
+  error?: IMessageError;
+  warning?: IMessageWarning;
+  message?: IMessageLogging;
+  code?: string;
 }
 
 export interface IMessageError {
-    is404?: boolean;
-    url?: string;
-    stack?: string;
-    line?: string;
-    col?: string;
-    text?: string;
+  is404?: boolean;
+  url?: string;
+  stack?: string;
+  line?: string;
+  col?: string;
+  text?: string;
 }
 
 export interface IMessageLogging {
-    url?: string;
-    text?: string;
+  url?: string;
+  text?: string;
 }
+
+export type MessageMethod = 'say' | 'log' | 'initializePopup' | 'getMessages';
 
 export interface IMessageWarning {
-    is404?: boolean;
-    url?: string;
-    stack?: string;
-    line?: string;
-    col?: string;
-    text?: string;
+  is404?: boolean;
+  url?: string;
+  stack?: string;
+  line?: string;
+  col?: string;
+  text?: string;
 }
-

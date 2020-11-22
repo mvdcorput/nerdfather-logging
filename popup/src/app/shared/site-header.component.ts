@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { HitlistService } from './services/hitlist.service';
 import { AppService } from './services/app.service';
 import { Router } from '@angular/router';
-import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-site-header',

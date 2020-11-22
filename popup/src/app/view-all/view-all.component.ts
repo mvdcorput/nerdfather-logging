@@ -35,7 +35,7 @@ export class ViewAllComponent implements OnInit {
   }
 
   edit = (target: ITarget) => {
-    this.router.navigate(['/upsert-to-hitlist'], { queryParams: { id: this.appService.hashCode(target.url) } });
+    this.router.navigate(['/upsert-to-hitlist'], { queryParams: { id: this.appService.hiyaCode(target.url) } });
   }
 
   toggleSelected = (target: ITarget) => {

@@ -1,0 +1,15 @@
+<div class="view-box" *ngIf="(addEditService.inEditTarget$ | async) as target">
+  <h1>Azure event grid configuration</h1>
+  <p>
+    <span>Application: {{target.application}}</span>
+  </p>
+
+  <p class="button-bar">
+    <span class="nav">
+      <button mat-button color="secundary" (click)="back()"><mat-icon matPrefix>keyboard_arrow_left</mat-icon>{{navButtonText}}</button>
+    </span>
+    <span class="actions">
+      <button mat-button color="primary" *ngIf="!target.isNew" (click)="save()">{{saveButtonText}}</button> 
+    </span>
+  </p>
+</div>

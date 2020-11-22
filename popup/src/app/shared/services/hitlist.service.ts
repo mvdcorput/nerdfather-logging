@@ -3,18 +3,18 @@ import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { ITarget } from '../models/ITarget';
 import { map, tap, first } from 'rxjs/operators';
 import { AppService } from './app.service';
+import { AddEditService } from './addEditService';
+import { OutputType } from '../models/OutputConfigTarget';
+import { AuthType } from '../models/AuthType';
 
 @Injectable({ providedIn: 'root' })
 export class HitlistService {
     private hitlist$$ = new BehaviorSubject<Array<ITarget>>([]);
     public hitlist$ = this.hitlist$$.asObservable();
 
-    private newTarget$$ = new BehaviorSubject<Array<ITarget>>([]);
-    public newTarget$ = this.newTarget$$.asObservable();
-
     public currentTarget$ = new Observable<ITarget>();
 
-    constructor(private appService: AppService, private ngZone: NgZone) {
+    constructor(private addEditService: AddEditService, private appService: AppService, private ngZone: NgZone) {
         this.getPersistedHitList();
 
         this.ngZone.run(() => {
@@ -47,11 +47,18 @@ export class HitlistService {
                     url,
                     application: domain,
                     enabled: true,
-                    environment: ''
+                    environment: '',
+                    isNew: true,
+                    outputConfigTypes: [],
+                    outputConfigs: [
+                      { type: OutputType.applicationInsights, authType: AuthType.anonymous },
+                      { type: OutputType.azureEventGrid, authType: AuthType.anonymous },
+                      { type: OutputType.seqLog, authType: AuthType.anonymous }
+                    ]
                 };
             })
         )
-        .subscribe(target => this.newTarget$$.next([target]))
+        .subscribe(target => this.addEditService.reset(target))
         .unsubscribe();
     }
 

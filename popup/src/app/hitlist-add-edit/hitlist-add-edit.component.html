@@ -1,4 +1,4 @@
-<div class="view-box" *ngIf="(target$ | async) as target">
+<div class="view-box" *ngIf="(addEditService.inEditTarget$ | async) as target">
   <p>
     <mat-form-field appearance="standard" class="full-width">
       <mat-label>Base url to target</mat-label>
@@ -23,24 +23,32 @@
   </p>
   <p>
     <span class="output-target">
+      <!-- <section class="output-configurations">
+        <div *ngFor="let configType of target.outputConfigTypes" >
+          <mat-checkbox class="example-margin" formNameArray="target.outputConfigTypes" value="configType">{{getConfigTypeName(configType)}}</mat-checkbox>
+        </div>
+      </section> -->
+
       <mat-radio-group aria-label="Where to output log" name="radioOutputTarget" ([ngModel])="outputTarget" (change)="onOutputTargetChange($event)">
-        <mat-radio-button value="1" class="primary">Local log file</mat-radio-button>
-        <mat-radio-button value="2" class="primary" style="margin-left:15px;">Seq log</mat-radio-button>
+        <mat-radio-button value="2" class="primary" style="margin-left:15px;">Azure event grid</mat-radio-button>
+        <mat-radio-button value="3" class="primary" style="margin-left:15px;">Application Insights</mat-radio-button>
+        <mat-radio-button value="4" class="primary" style="margin-left:15px;">Seq log</mat-radio-button>
       </mat-radio-group>
-      <span class="seq-log" *ngIf="outputTarget === '2'">
-        <mat-form-field appearance="standard" class="full-width">
-          <mat-label>Seq log url</mat-label>
-          <input #seqlogurl matInput placeholder="Seq log url">
-          <mat-icon matSuffix>language</mat-icon>
-          <mat-hint>Url of Seq log instance</mat-hint>
-        </mat-form-field>
-      </span>
+      <p class="configure" *ngIf="outputTarget === '2'">
+        <a routerLink="" (click)="nav('configure-azure-event-grid')">Configure Azure event grid</a>
+      </p>
+      <p class="configure" *ngIf="outputTarget === '3'">
+        <a routerLink="" (click)="nav('configure-application-insights')">Configure Application Insights</a>
+      </p>
+      <p class="configure" *ngIf="outputTarget === '4'">
+        <a routerLink="" (click)="nav('configure-seq-log')">Configure Seq log</a>
+      </p>
     </span>
   </p>
 
   <p class="button-bar">
     <span class="nav">
-      <button mat-button color="secundary" (click)="nav()"><mat-icon matPrefix>keyboard_arrow_left</mat-icon>{{navButtonText}}</button>
+      <button mat-button color="secundary" (click)="back()"><mat-icon matPrefix>keyboard_arrow_left</mat-icon>{{navButtonText}}</button>
     </span>
     <span class="actions">
       <button mat-button color="primary" *ngIf="target.isNew" (click)="upsertToHitlist()">{{addButtonText}}</button> 

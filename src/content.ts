@@ -66,11 +66,12 @@ function handleMessage(messageData: IMessageData) {
     } else {
         const msgDate = new Date();
         const newMessage: IMessage = {
-            method: 'log',
+            data: messageData,
             date: msgDate,
+            method: 'log',
             occurenceCount: 1,
             occurenceEndDate: msgDate,
-            data: messageData
+            url: document.location.href
         }
 
         messages.push(newMessage);
@@ -91,7 +92,6 @@ function handleMessage(messageData: IMessageData) {
 }
 
 //#region Message Handlers
-
 document.addEventListener('ErrorToExtension', function(e: any) {
     const error = e.detail;
     if(isIFrame) {

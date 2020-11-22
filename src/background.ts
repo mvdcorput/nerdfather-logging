@@ -2,19 +2,21 @@ import * as $ from 'jquery';
 import { IMessage, MessageService } from './background/messages.service';
 
 const messageService = new MessageService();
+const activeTabUrlsHistory = [];
 
 // Init / connect to content script 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) {
-  if (changeInfo.status == 'complete' && tab.active) {
+  if (changeInfo.status == 'complete' && tab.active && tab.url.indexOf('chrome-extension://') === -1) {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      activeTabUrlsHistory.push(tab.url);
       messageService.reset(tab.url);
 
-      chrome.tabs.sendMessage(tabId, { 
-        method: 'say', data: { code: 'jsic', message: 'Javascript informer connected.' } 
+      chrome.tabs.sendMessage(tabId, {
+        method: 'say', data: { code: 'jsic', message: 'Javascript informer connected.' }
       }, (response) => {
-        console.log('Content script connected', response.messages);
-        
-        if (response.messages) {
+        if (response && response.messages) {
+          console.log('Content script connected', response.messages);
+
           messageService.addMessages(response.messages);
         }
       });
@@ -27,14 +29,23 @@ chrome.runtime.onMessage.addListener(function (msg: IMessage, sender, sendRespon
   if (msg) {
     let response: any = 'ok';
 
-    switch (msg.method)
-    {
+    switch (msg.method) {
       case 'say':
-        console.log('say', msg.data.code, msg.data.message);
+        console.trace('Someone is saying : ', msg.data.code, msg.data.message);
         break;
       case 'initializePopup':
+        const currentUrl = activeTabUrlsHistory[activeTabUrlsHistory.length - 1]; 
+        response = {
+          messages: messageService.messages.filter(m => m.url === currentUrl)
+        };
+        break;
       case 'getMessages':
-        response = { messages: messageService.messages }; 
+        const previousUrl = activeTabUrlsHistory[activeTabUrlsHistory.length - 1]; 
+        response = {
+          url: previousUrl,
+          messages: messageService.messages.filter(m => m.url === previousUrl)
+        };
+        console.trace('Replying messages : ', msg.method, response);
         break;
       case 'log':
         messageService.addMessage(msg);
@@ -68,7 +79,7 @@ function uuidv4() {
         //     ]
         //   }
         // };
-  
+
         // (async () => {
         //   const rawResponse = await fetch(SeqLogUrl, {
         //     method: 'POST',

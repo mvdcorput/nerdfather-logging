@@ -1,12 +1,15 @@
-import { Component, OnInit, enableProdMode } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ITarget } from '../shared/models/ITarget';
 import { MatRadioChange } from '@angular/material/radio';
 import { HitlistService } from '../shared/services/hitlist.service';
-import { Location } from '@angular/common';
-import { map, tap, first, filter } from 'rxjs/operators';
+import { filter, tap, isEmpty, map } from 'rxjs/operators';
 import { AppService } from '../shared/services/app.service';
-import { Observable, combineLatest } from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
+import { AddEditService } from '../shared/services/addEditService';
+import { AuthType } from '../shared/models/AuthType';
+import { OutputType } from '../shared/models/OutputConfigTarget';
+import { Observable } from 'rxjs/internal/Observable';
 
 @Component({
   selector: 'app-hitlist-add-edit',
@@ -19,12 +22,10 @@ export class HitlistAddEditComponent implements OnInit {
   addButtonText: string;
   updateButtonText: string;
 
-  target$ = new Observable<ITarget>();
-
   constructor(
+    public addEditService: AddEditService,
     private appService: AppService,
     private hitlistService: HitlistService,
-    private location: Location,
     public router: Router,
     private route: ActivatedRoute) {
 
@@ -34,28 +35,69 @@ export class HitlistAddEditComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.target$ = combineLatest(
-      [
-        this.hitlistService.currentTarget$,
-        this.appService.currentUrl$,
-        this.appService.domain$,
-        this.hitlistService.hitlist$,
-        this.route.queryParams
-      ]
-    ).pipe(
-      filter(([currentTarget, url, domain, hitlist, queryParams]) => hitlist !== null),
-      map(([currentTarget, url, domain, hitlist, queryParams]) => {
-        const target = currentTarget ?
-          currentTarget :
-          hitlist.filter(t => this.appService.hashCode(t.url) === parseInt(queryParams['id'], 0))[0];
+    console.trace('HitlistAddEditComponent init');
 
-        return (target || this.newTarget(url, domain)) as ITarget;
-      })
+    this.addEditService.inEditTarget$.subscribe(
+      addEditTarget => {
+        if (addEditTarget === null) {
+          console.trace('Initializing update of this.addEditService.inEditTarget$', addEditTarget);
+
+          combineLatest(
+            [
+              this.appService.currentUrl$,
+              this.appService.domain$,
+              this.hitlistService.currentTarget$,
+              this.hitlistService.hitlist$,
+              this.route.queryParams
+            ]
+          )
+          .subscribe(([url, domain, currentTarget, hitlist, queryParams]) => {
+            console.trace('Updating this.addEditService.inEditTarget$', url, domain, currentTarget, hitlist, queryParams);
+
+            const target = currentTarget ? currentTarget : hitlist.filter(t => 
+              this.appService.hiyaCode(t.url) === parseInt(queryParams.id, 0)
+            )[0];
+
+            this.addEditService.reset((target || this.newTarget(url, domain)) as ITarget);
+          })
+          .unsubscribe();
+        }
+      }
     );
   }
 
-  nav = () => {
-    this.location.back();
+  back = () => {
+    this.router.navigate(['']);
+  }
+
+  nav = (path: string) => {
+    this.router.navigate([`/${path}`]);
+  }
+
+  checked = (outputType: OutputType): Observable<boolean> => {
+    return this.addEditService.inEditTarget$.pipe(
+      map(inEditTarget =>
+        inEditTarget.outputConfigTypes.indexOf(outputType) > -1
+      )
+    );
+  }
+
+  getConfigTypeName(configType: OutputType) {
+    let result = 'Onbekend';
+
+    switch (configType) {
+      case OutputType.applicationInsights:
+        result = 'Applicaiton insights';
+        break;
+      case OutputType.azureEventGrid:
+        result = 'Azure event grid';
+        break;
+      case OutputType.applicationInsights:
+        result = 'Seq log';
+        break;
+    }
+
+    return result;
   }
 
   onOutputTargetChange = ($event: MatRadioChange) => {
@@ -63,7 +105,7 @@ export class HitlistAddEditComponent implements OnInit {
   }
 
   removeFromHitlist = () => {
-    this.target$
+    this.addEditService.inEditTarget$
       .subscribe(target => this.hitlistService.removeFromHitlist(target))
       .unsubscribe();
 
@@ -71,9 +113,9 @@ export class HitlistAddEditComponent implements OnInit {
   }
 
   upsertToHitlist = () => {
-    this.target$
-        .subscribe(target => this.hitlistService.upsertToHitList(target))
-        .unsubscribe();
+    this.addEditService.inEditTarget$
+      .subscribe(target => this.hitlistService.upsertToHitList(target))
+      .unsubscribe();
 
     this.router.navigate(['']);
   }
@@ -84,7 +126,13 @@ export class HitlistAddEditComponent implements OnInit {
       environment: '',
       application: domain,
       enabled: true,
-      isNew: true
+      isNew: true,
+      outputConfigTypes: [],
+      outputConfigs: [
+        { type: OutputType.applicationInsights, authType: AuthType.anonymous },
+        { type: OutputType.azureEventGrid, authType: AuthType.anonymous },
+        { type: OutputType.seqLog, authType: AuthType.anonymous }
+      ]
     };
   }
 }

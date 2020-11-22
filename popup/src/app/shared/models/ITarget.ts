@@ -1,3 +1,6 @@
+import { AuthType } from './AuthType';
+import { OutputType } from './OutputConfigTarget';
+
 export interface ITarget
 {
     url: string;
@@ -5,4 +8,15 @@ export interface ITarget
     application: string;
     enabled: boolean;
     isNew?: boolean;
+    outputConfigTypes: OutputType[];
+    outputConfigs: IOutputConfig[];
+}
+
+interface IOutputConfig {
+    type: OutputType;
+    url?: string;
+    authType?: AuthType;
+    secret?: string;
+    username?: string;
+    password?: string;
 }

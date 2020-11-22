@@ -1,15 +1,16 @@
 import { Injectable, NgZone } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class AppService {
-    private currentUrl$$ = new BehaviorSubject<string>('');
+    private currentUrl$$ = new BehaviorSubject<string>('neverland');
     public currentUrl$ = this.currentUrl$$.asObservable();
 
     public domain$ = new Observable<string>();
 
-    constructor(private ngZone: NgZone) {
+    constructor(private ngZone: NgZone, private router: Router) {
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
             this.ngZone.run(() => {
                 this.currentUrl$$.next(tabs[0].url || null);
@@ -35,7 +36,7 @@ export class AppService {
         });
     }
 
-    public hashCode = (s) => {
+    public hiyaCode = (s) => {
         return s.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0);
     }
 }

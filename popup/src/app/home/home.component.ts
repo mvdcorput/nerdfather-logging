@@ -1,11 +1,12 @@
 import * as $ from 'jquery';
 import { Component, OnInit } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, combineLatest, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { HitlistService } from '../shared/services/hitlist.service';
-import { filter, map, tap } from 'rxjs/operators';
+import { filter, map, mergeMap, tap } from 'rxjs/operators';
 import { MessageCenterService, IMessage } from '../shared/services/message-center.service';
 import { FileService } from '../shared/services/file.service';
+import { AppService } from '../shared/services/app.service';
 
 @Component({
   selector: 'app-site-home',
@@ -16,22 +17,10 @@ export class HomeComponent implements OnInit {
   private errors$$: BehaviorSubject<Array<IError>> = new BehaviorSubject<Array<IError>>([]);
   public readonly errors$: Observable<Array<IError>> = this.errors$$.asObservable();
 
-  private messageCounts$$: BehaviorSubject<IMessageCounts> = new BehaviorSubject<IMessageCounts>(null);
-  public readonly messageCounts$: Observable<IMessageCounts> = this.messageCounts$$.asObservable();
-
-  // private doYo = (method, data, callback) => {
-  //   chrome.runtime.sendMessage({ method: method, data: data }, function (response) {
-  //       if(typeof callback === "function") callback(response);
-  //   });
-  // }
-
-  // private doYoTab = (tabId, method, data, callback) => {
-  //   chrome.tabs.sendMessage(tabId, {method: method, data: data}, function(response){
-  //       if(typeof callback === "function") callback(response);
-  //   });
-  // }
+  public messageCounters$ = new Observable<IMessageCounts>();
 
   constructor(
+    public appService: AppService,
     private fileService: FileService,
     public hitlistService: HitlistService,
     private messageCenterService: MessageCenterService,
@@ -45,7 +34,7 @@ export class HomeComponent implements OnInit {
     }]);
 
     // Initialize observables
-    this.messageCounts$$.next(
+    this.messageCounters$ = of(
       {
         userMessages: 0,
         errors: 0,
@@ -56,19 +45,19 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.messageCenterService.messages$.pipe(
-      filter(t => t !== undefined && t !== null),
-      map(msgs => {
+    console.trace('HomeComponent init');
+
+    this.messageCounters$ = combineLatest([this.appService.currentUrl$, this.messageCenterService.messages$]).pipe(
+      filter(([, msgs]) => msgs !== undefined && msgs !== null),
+      map(([url, msgs]) => {
         return {
           userMessages: 0,
-          errors: msgs.filter && msgs.filter(m => m.method === 'log' && m.data && m.data.error).length || 0,
-          warnings: msgs.filter && msgs.filter(m => m.method === 'log' && m.data && m.data.warning).length || 0,
-          info: msgs.filter && msgs.filter(m => m.method === 'log' && m.data && m.data.message).length || 0,
+          errors: this.filterMessagesByUrl(msgs, url).filter(m => m.data && m.data.error).length || 0,
+          warnings: this.filterMessagesByUrl(msgs, url).filter(m => m.data && m.data.warning).length || 0,
+          info: this.filterMessagesByUrl(msgs, url).filter(m => m.data && m.data.message).length || 0,
         };
       })
-    ).subscribe(messageCounts => {
-      this.messageCounts$$.next(messageCounts);
-    });
+    );
   }
 
   download = () => {
@@ -76,7 +65,12 @@ export class HomeComponent implements OnInit {
   }
 
   messagesToTab = () => {
-    this.messageCenterService.messages$.subscribe(msgs => this.fileService.messagesToTab(msgs));
+    combineLatest([this.appService.currentUrl$, this.messageCenterService.messages$]).pipe(
+      filter(([, msgs]) => msgs !== undefined && msgs !== null),
+      map(([url, msgs]) => {
+        return this.filterMessagesByUrl(msgs, url);
+      })
+    ).subscribe(msgs => this.fileService.messagesToTab(msgs));
   }
 
   upsertToHitlist = () => {
@@ -86,6 +80,16 @@ export class HomeComponent implements OnInit {
   viewHitlist = () => {
     this.router.navigate(['/view-all']);
   }
+
+  private filterMessagesByUrl = (msgs: IMessage[], url: string) => {
+    const result: IMessage[] = [];
+
+    if (msgs.length) {
+      result.push(...msgs.filter(m => m.method === 'log' && m.url === url));
+    }
+
+    return result;
+  }
 }
 
 export interface IError {
@@ -93,8 +97,7 @@ export interface IError {
   time: Date;
 }
 
-export interface IMessageCounts
-{
+export interface IMessageCounts {
   userMessages: number;
   errors: number;
   warnings: number;

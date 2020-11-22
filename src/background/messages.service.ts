@@ -14,11 +14,7 @@ export class MessageService
     }
 
     reset(tabUrl: string) {
-        this.messages = this.messages.filter(m => {
-            return 
-                (m.data.error && m.data.error.url !== tabUrl) || 
-                (m.data.warning && m.data.warning.url !== tabUrl); 
-        });
+        this.messages = this.messages.filter(m => m.url !== tabUrl);
     }
 }
 
@@ -28,6 +24,7 @@ export interface IMessage {
     method: MessageMethod;
     occurenceEndDate: Date;
     occurenceCount: number;
+    url: string;
 }
 
 export interface IMessageData {

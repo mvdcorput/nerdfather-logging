@@ -27,7 +27,6 @@ export class FileService {
 
     messagesToTab(messages: IMessage[]) {
         const url = `javascript-messages.html`;
-        chrome.tabs.create({ url }, (tab: chrome.tabs.Tab) => {
-        });
+        chrome.tabs.create({ url }, (tab: chrome.tabs.Tab) => {});
     }
 }
