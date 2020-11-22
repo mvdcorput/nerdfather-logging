@@ -12,7 +12,7 @@ export interface ITarget
     outputConfigs: IOutputConfig[];
 }
 
-interface IOutputConfig {
+export interface IOutputConfig {
     type: OutputType;
     url?: string;
     authType?: AuthType;

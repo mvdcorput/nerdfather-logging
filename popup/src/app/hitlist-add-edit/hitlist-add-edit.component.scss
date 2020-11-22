@@ -40,8 +40,8 @@ mat-radio-group {
   margin-left: -1.2em;
 }
 
-p.configure {
-  padding-top: 1.2em;
+span.configure {
+  padding-left: 1em;
 
   a,
   a:active,
@@ -49,4 +49,13 @@ p.configure {
   a:visited { 
     color: #3f51b5;
   }
+}
+
+::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-ripple .mat-ripple-element {
+  opacity: 0.03 !important;
+  background-color: #3f51b5!important;
+}
+
+::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-background,.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background {
+  background-color: #3f51b5;
 }

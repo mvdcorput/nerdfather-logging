@@ -2,6 +2,7 @@
   <h1>Azure event grid configuration</h1>
   <p>
     <span>Application: {{target.application}}</span>
+    <span *ngIf="target.environment"> ({{target.environment}})</span>
   </p>
 
   <p class="button-bar">

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ITarget } from '../shared/models/ITarget';
+import { IOutputConfig, ITarget } from '../shared/models/ITarget';
 import { MatRadioChange } from '@angular/material/radio';
 import { HitlistService } from '../shared/services/hitlist.service';
-import { filter, tap, isEmpty, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { AppService } from '../shared/services/app.service';
 import { combineLatest } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -10,6 +10,7 @@ import { AddEditService } from '../shared/services/addEditService';
 import { AuthType } from '../shared/models/AuthType';
 import { OutputType } from '../shared/models/OutputConfigTarget';
 import { Observable } from 'rxjs/internal/Observable';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-hitlist-add-edit',
@@ -35,13 +36,9 @@ export class HitlistAddEditComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.trace('HitlistAddEditComponent init');
-
     this.addEditService.inEditTarget$.subscribe(
       addEditTarget => {
         if (addEditTarget === null) {
-          console.trace('Initializing update of this.addEditService.inEditTarget$', addEditTarget);
-
           combineLatest(
             [
               this.appService.currentUrl$,
@@ -51,27 +48,21 @@ export class HitlistAddEditComponent implements OnInit {
               this.route.queryParams
             ]
           )
-          .subscribe(([url, domain, currentTarget, hitlist, queryParams]) => {
-            console.trace('Updating this.addEditService.inEditTarget$', url, domain, currentTarget, hitlist, queryParams);
+            .subscribe(([url, domain, currentTarget, hitlist, queryParams]) => {
+              const target = currentTarget ? currentTarget : hitlist.filter(t =>
+                this.appService.hiyaCode(t.url) === parseInt(queryParams.id, 0)
+              )[0];
 
-            const target = currentTarget ? currentTarget : hitlist.filter(t => 
-              this.appService.hiyaCode(t.url) === parseInt(queryParams.id, 0)
-            )[0];
-
-            this.addEditService.reset((target || this.newTarget(url, domain)) as ITarget);
-          })
-          .unsubscribe();
+              this.addEditService.reset((target || this.newTarget(url, domain)) as ITarget);
+            })
+            .unsubscribe();
         }
       }
-    );
+    ).unsubscribe();
   }
 
   back = () => {
     this.router.navigate(['']);
-  }
-
-  nav = (path: string) => {
-    this.router.navigate([`/${path}`]);
   }
 
   checked = (outputType: OutputType): Observable<boolean> => {
@@ -82,17 +73,17 @@ export class HitlistAddEditComponent implements OnInit {
     );
   }
 
-  getConfigTypeName(configType: OutputType) {
+  getConfigTypeName = (configType: OutputType) => {
     let result = 'Onbekend';
 
     switch (configType) {
       case OutputType.applicationInsights:
-        result = 'Applicaiton insights';
+        result = 'Application insights';
         break;
       case OutputType.azureEventGrid:
         result = 'Azure event grid';
         break;
-      case OutputType.applicationInsights:
+      case OutputType.seqLog:
         result = 'Seq log';
         break;
     }
@@ -100,8 +91,22 @@ export class HitlistAddEditComponent implements OnInit {
     return result;
   }
 
-  onOutputTargetChange = ($event: MatRadioChange) => {
-    this.outputTarget = $event.value;
+  nav = (type: OutputType) => {
+    switch (type) {
+      case OutputType.applicationInsights:
+        this.router.navigate([`/configure-application-insights`]);
+        break;
+      case OutputType.azureEventGrid:
+        this.router.navigate([`/configure-azure-event-grid`]);
+        break;
+      case OutputType.seqLog:
+        this.router.navigate([`/configure-seq-log`]);
+        break;
+    }
+  }
+
+  onCheckboxChangeEventFunc(type: OutputType, event: MatCheckboxChange) {
+    this.addEditService.updateActiveConfigurations(type, event.checked);
   }
 
   removeFromHitlist = () => {
@@ -114,7 +119,9 @@ export class HitlistAddEditComponent implements OnInit {
 
   upsertToHitlist = () => {
     this.addEditService.inEditTarget$
-      .subscribe(target => this.hitlistService.upsertToHitList(target))
+      .subscribe(target => {
+        this.hitlistService.upsertToHitList(target);
+      })
       .unsubscribe();
 
     this.router.navigate(['']);
