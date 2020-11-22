@@ -26,6 +26,7 @@
       <section class="output-configurations">
         <div *ngFor="let config of target.outputConfigs">
           <mat-checkbox 
+            color="primary"
             (change)="onCheckboxChangeEventFunc(config.type, $event)" 
             [checked]="target.outputConfigTypes.indexOf(config.type) > -1">
               {{getConfigTypeName(config.type)}}

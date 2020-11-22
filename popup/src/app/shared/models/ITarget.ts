@@ -15,7 +15,7 @@ export interface ITarget
 export interface IOutputConfig {
     type: OutputType;
     url?: string;
-    authType?: AuthType;
+    authType: AuthType;
     secret?: string;
     username?: string;
     password?: string;

@@ -51,11 +51,7 @@ span.configure {
   }
 }
 
-::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-ripple .mat-ripple-element {
-  opacity: 0.03 !important;
-  background-color: #3f51b5!important;
-}
-
-::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-background,.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background {
-  background-color: #3f51b5;
+::ng-deep .button-bar .mat-button-wrapper .mat-icon {
+  position: relative;
+  top: -2px;
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { first, map, tap } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 import { ITarget, IOutputConfig } from '../models/ITarget';
 import { OutputType } from '../models/OutputConfigTarget';
 

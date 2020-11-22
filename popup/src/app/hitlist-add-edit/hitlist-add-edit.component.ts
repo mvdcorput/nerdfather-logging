@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { IOutputConfig, ITarget } from '../shared/models/ITarget';
-import { MatRadioChange } from '@angular/material/radio';
+import { ITarget } from '../shared/models/ITarget';
 import { HitlistService } from '../shared/services/hitlist.service';
 import { map } from 'rxjs/operators';
 import { AppService } from '../shared/services/app.service';

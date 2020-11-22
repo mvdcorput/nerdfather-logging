@@ -21,17 +21,16 @@
   width: 100%;
 }
 
-.output-target {
-  display: inline-block;
-  position: relative;
-  width: 100%;
-  margin: 10px 0;
+.space-above {
+  margin-top: 1em;
+}
 
-  .local-file,
-  .seq-log {
-    display: block;
-    margin: 10px 0 10px 0;
-    padding: 10px;
-    border: 1px solid #ccc;
-  }
+.mat-radio-group .mat-radio-button {
+  margin-right: 1em;
+}
+
+.shhhh {
+  font-size: 75%;
+  color: #3f51b5;
+  display: block;
 }

@@ -1,7 +1,37 @@
-<div class="view-box" *ngIf="(addEditService.inEditTarget$ | async) as target">
+<div class="view-box" *ngIf="(outputConfig$ | async) as config">
   <h1>Seq log configuration</h1>
   <p>
-    <span>Application: {{target.application}}</span>
+    <span>Application: {{(addEditService.inEditTarget$ | async).application}}</span>
+    <span *ngIf="(addEditService.inEditTarget$ | async).environment"> ({{(addEditService.inEditTarget$ | async).environment}})</span>
+  </p>
+  <p>
+    <mat-form-field appearance="standard" class="full-width">
+      <mat-label>Destination url (Azure event grid log endpoint)</mat-label>
+      <input #app matInput type="text" [(ngModel)]="config.url" placeholder="Enter application name">
+      <mat-hint>Destination for sending log messages to</mat-hint>
+    </mat-form-field>
+  </p>
+  <p class="space-above">
+
+    <label for="mattie" aria-owns="mattie">
+      <mat-label _ngcontent-stp-c8="" class="shhhh">Authorization method</mat-label>
+    </label>
+    <mat-radio-group id="mattie" aria-label="Select an option" [(ngModel)]="config.authType">
+      <mat-radio-button 
+        (selected)="config.authType === AuthType.anonymous">
+          Anonymous
+      </mat-radio-button>
+      <mat-radio-button 
+        (selected)="config.authType === AuthType.secret" 
+        (value)="AuthType.secret">
+          Secret
+      </mat-radio-button>
+      <mat-radio-button 
+        (selected)="config.authType === AuthType.usernamePassword" 
+        (value)="AuthType.usernamePassword">
+          Username / password
+      </mat-radio-button>
+    </mat-radio-group>
   </p>
 
   <p class="button-bar">
@@ -9,7 +39,7 @@
       <button mat-button color="secundary" (click)="back()"><mat-icon matPrefix>keyboard_arrow_left</mat-icon>{{navButtonText}}</button>
     </span>
     <span class="actions">
-      <button mat-button color="primary" *ngIf="!target.isNew" (click)="save()">{{saveButtonText}}</button> 
+      <button mat-button color="primary" (click)="save()">{{saveButtonText}}</button> 
     </span>
   </p>
 </div>

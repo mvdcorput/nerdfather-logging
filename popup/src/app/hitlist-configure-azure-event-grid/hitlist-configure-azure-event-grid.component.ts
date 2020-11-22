@@ -1,13 +1,15 @@
-import { Component, OnInit, enableProdMode } from '@angular/core';
-import { ITarget } from '../shared/models/ITarget';
-import { MatRadioChange } from '@angular/material/radio';
+import { Component, OnInit } from '@angular/core';
+import { IOutputConfig, ITarget } from '../shared/models/ITarget';
 import { HitlistService } from '../shared/services/hitlist.service';
 import { Location } from '@angular/common';
-import { map, tap, first, filter } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { AppService } from '../shared/services/app.service';
-import { Observable, combineLatest } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AddEditService } from '../shared/services/addEditService';
+import { Observable, of } from 'rxjs';
+import { AuthType } from '../shared/models/AuthType';
+import { OutputType } from '../shared/models/OutputConfigTarget';
+import { MatRadioChange } from '@angular/material/radio';
 
 @Component({
   selector: 'app-hitlist-configure-azure-event-grid',
@@ -17,7 +19,16 @@ import { AddEditService } from '../shared/services/addEditService';
 export class HitlistConfigureAzureEventGridComponent implements OnInit {
   outputTarget: string;
   navButtonText: string;
+  testButtonText: string;
   saveButtonText: string;
+
+  public AuthType = AuthType;
+
+  public outputConfig$: Observable<IOutputConfig> = of({
+    type: OutputType.azureEventGrid,
+    authType: AuthType.anonymous,
+    url: ''
+  });
 
   constructor(
     public addEditService: AddEditService,
@@ -27,22 +38,37 @@ export class HitlistConfigureAzureEventGridComponent implements OnInit {
     public router: Router,
     private route: ActivatedRoute) {
     this.navButtonText = 'Back';
+    this.testButtonText = 'Test';
     this.saveButtonText = 'Save';
   }
 
   ngOnInit() {
-    console.trace('HitlistConfigureAzureEventGridComponent init');
+      this.outputConfig$ = this.addEditService.inEditTarget$.
+        pipe(
+          map(t => {
+            return t.outputConfigs.find(x => x.type === OutputType.azureEventGrid);
+          })
+        );
   }
 
   back = () => {
     this.router.navigate(['/upsert-to-hitlist']);
   }
 
+  onCheckboxChangeEventFunc(type: OutputType, event: MatRadioChange) {
+    this.addEditService.updateActiveConfigurations(type, event.value);
+  }
+
+  test = () => {
+  }
+
   save = () => {
-    this.addEditService.inEditTarget$
-        .pipe(
-          tap(target => this.hitlistService.upsertToHitList(target))
-        );
+    let target: ITarget;
+
+    this.addEditService.inEditTarget$.subscribe(t => target = t);
+    debugger;
+    this.hitlistService.upsertToHitList(target);
+
     this.router.navigate(['']);
   }
 }
